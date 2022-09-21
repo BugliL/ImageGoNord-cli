@@ -12,7 +12,12 @@ class UnitTestBaseClass(unittest.TestCase):
         if std_output_path.exists():
             std_output_path.unlink()
 
-    def run_test(self, input_image_path, output_image_path, expected_image_path, *args):
+        # Delete the output image if exists
+        std_output_path = Path('output.jpg')
+        if std_output_path.exists():
+            std_output_path.unlink()
+
+    def run_test(self, input_image_path: Path, output_image_path: Path, expected_image_path: Path, *args):
         assert input_image_path is not None, "The input_image_path is not set"
         assert expected_image_path is not None, "The expected_image_path is not set"
         assert output_image_path is not None, "The output_image_path is not set"
