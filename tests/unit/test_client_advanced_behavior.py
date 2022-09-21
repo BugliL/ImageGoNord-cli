@@ -2,7 +2,7 @@ import tempfile
 from pathlib import Path
 
 from tests.unit.unit_test_base_class import UnitTestBaseClass
-from tests.utils import run_image_go_nord_client
+from tests.utils import run_image_go_nord_client, are_images_the_same
 
 
 class ClientShould(UnitTestBaseClass):
@@ -16,12 +16,12 @@ class ClientShould(UnitTestBaseClass):
         # Run the script with the image path input and output and check result
         with tempfile.TemporaryDirectory() as tmpdirname:
             output_image_path = Path(tmpdirname) / 'output.png'
-            input_image_path = self.data / 'blue_red_square.png'
+            input_image_path = self.data / 'rainbow_square.png'
 
             self.run_test(
                 input_image_path,
                 output_image_path,
-                self.data / 'blue_red_nord_na_square.png',
+                self.data / 'rainbow_nord_na_square.png',
                 f'-i={input_image_path}',
                 f'-o={output_image_path}',
                 '--no-avg-pixels'
@@ -32,13 +32,40 @@ class ClientShould(UnitTestBaseClass):
         # Run the script with the image path input and output and check result
         with tempfile.TemporaryDirectory() as tmpdirname:
             output_image_path = Path(tmpdirname) / 'output.png'
-            input_image_path = self.data / 'blue_red_square.png'
+            input_image_path = self.data / 'rainbow_square.png'
 
             self.run_test(
-                self.data / 'blue_red_square.png',
+                self.data / 'rainbow_square.png',
                 output_image_path,
-                self.data / 'blue_red_nord_na_square.png',
+                self.data / 'rainbow_nord_na_square.png',
                 f'-i={input_image_path}',
                 f'-o={output_image_path}',
                 '-na'
             )
+
+    def test_make_image_difference_avg_pixel_and_no_avg_pixel_parameter(self):
+        # Create a temporary folder to store the output image
+        # Run the script with the image path input and output and check result
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            output_image_path = Path(tmpdirname) / 'output.png'
+            output_image_na_path = Path(tmpdirname) / 'output_na.png'
+            input_image_path = self.data / 'rainbow_square.png'
+
+            self.run_test(
+                input_image_path,
+                output_image_path,
+                self.data / 'rainbow_nord_square.png',
+                f'-i={input_image_path}',
+                f'-o={output_image_path}',
+            )
+
+            self.run_test(
+                input_image_path,
+                output_image_na_path,
+                self.data / 'rainbow_nord_na_square.png',
+                f'-i={input_image_path}',
+                f'-o={output_image_na_path}',
+                '--no-avg-pixels'
+            )
+
+            self.assertFalse(are_images_the_same(output_image_path, output_image_na_path))
