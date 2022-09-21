@@ -2,7 +2,7 @@ import tempfile
 from pathlib import Path
 
 from tests.unit.unit_test_base_class import UnitTestBaseClass
-from tests.utils import run_image_go_nord_client, are_images_the_same
+from tests.utils import are_images_the_same
 
 
 class ClientShould(UnitTestBaseClass):
