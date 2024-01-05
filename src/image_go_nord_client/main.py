@@ -158,16 +158,16 @@ def main():
 
     if len(args) == 0:
         print(__doc__)
-        sys.exit(1)
+        return 1
 
     # If help given then print the docstring of the module and exit
     if "--help" in args or "-h" in args:
         print(__doc__)
-        sys.exit(0)
+        return 0
 
     if "--version" in args or "-v" in args:
         print(VERSION)
-        sys.exit(0)
+        return 0
 
     go_nord = GoNord()
 
@@ -182,7 +182,7 @@ def main():
         to_console(confarg.logs["img"][1].format(arg),
                    confarg.logs["img"][-1],
                    confarg.logs["err"][0])
-        sys.exit(1)
+        return 1
 
     QUIET_MODE = "-q" in args or "--quiet" in args
 
@@ -209,7 +209,7 @@ def main():
                 to_console(confarg.logs["img"][1].format(arg),
                            confarg.logs["img"][-1],
                            confarg.logs["err"][0])
-                sys.exit(1)
+                return 1
             continue
 
         condition_argument = key in ["--out", "-o"]
@@ -226,7 +226,7 @@ def main():
                 to_console(confarg.logs["out"][1].format(arg),
                            confarg.logs["out"][-1],
                            confarg.logs["err"][0])
-                sys.exit(1)
+                return 1
             continue
 
         condition_argument = key in ["--no-avg", "-na"]
@@ -235,7 +235,7 @@ def main():
                 to_console(confarg.logs["navg"][1].format(arg),
                            confarg.logs["navg"][-1],
                            confarg.logs["err"][0])
-                sys.exit(1)
+                return 1
             else:
                 go_nord.disable_avg_algorithm()
                 to_console(confarg.logs["navg"][0])
@@ -257,7 +257,7 @@ def main():
                 to_console(confarg.logs["pxls"][-2].format(arg),
                            confarg.logs["pxls"][-1],
                            confarg.logs["err"][0])
-                sys.exit(1)
+                return 1
 
         condition_argument = key in ["--blur", "-b"]
         if condition_argument:
@@ -265,7 +265,7 @@ def main():
                 to_console(confarg.logs["blur"][-2].format(arg),
                            confarg.logs["blur"][-1],
                            confarg.logs["err"][0])
-                sys.exit(1)
+                return 1
             else:
                 go_nord.enable_gaussian_blur()
                 to_console(confarg.logs["blur"][0])
@@ -326,4 +326,5 @@ def main():
     quantize_image = go_nord.convert_image(
         image,
         save_path=OUTPUT_IMAGE_NAME)
-    sys.exit(0)
+
+    return 0
