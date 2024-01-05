@@ -8,7 +8,7 @@ def run_image_go_nord_client(*args):
     :param args: The arguments to pass directly to the script.
     """
 
-    command = ["python", (str(Path.cwd() / 'src' / 'cli.py')), *args]
+    command = ["python", (str(Path.cwd() / "src" / "cli.py")), *args]
     return " ".join(command), subprocess.check_output(command, universal_newlines=True)
 
 
