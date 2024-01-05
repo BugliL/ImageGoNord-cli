@@ -1,6 +1,5 @@
 import tempfile
 from pathlib import Path
-import unittest
 
 from .unit_test_base_class import UnitTestBaseClass
 from tests.utils import are_images_the_same
@@ -44,7 +43,6 @@ class ClientShould(UnitTestBaseClass):
                 "-na",
             )
 
-    @unittest.skip("This test is not working")
     def test_make_image_difference_avg_pixel_and_no_avg_pixel_parameter(self):
         # Create a temporary folder to store the output image
         # Run the script with the image path input and output and check result
