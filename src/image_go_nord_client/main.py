@@ -56,6 +56,7 @@ QUIET_MODE = False
 OUTPUT_IMAGE_NAME = "nord" + DEFAULT_EXTENSION
 PALETTE_CHANGED = False
 
+__ALL__ = ["to_console", "get_version", "main"]
 
 def to_console(*params):
     """<Short Description>
@@ -100,8 +101,11 @@ def get_version():
     file_version = open(path.dirname(path.realpath(__file__)) + "/VERSION")
     return file_version.readline()
 
-
-if __name__ == '__main__':
+def main():
+    global OUTPUT_IMAGE_NAME
+    global PALETTE_CHANGED
+    global QUIET_MODE
+    
     args = sys.argv[1:]
 
     if len(args) == 0:

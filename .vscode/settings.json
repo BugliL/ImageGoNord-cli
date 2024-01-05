@@ -5,6 +5,7 @@
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter",
     },
+    "python.envFile": "${workspaceFolder}/.env",
     "python.testing.unittestEnabled": true,
     "python.testing.unittestArgs": [
         "-v",
@@ -16,4 +17,8 @@
     "python.testing.pytestEnabled": false,
     "python.testing.cwd": "${workspaceFolder}",
     "python.testing.autoTestDiscoverOnSaveEnabled": true,
+    "terminal.integrated.env.osx": {
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONPATH": "${workspaceFolder}/src:${workspaceFolder}/tests"
+    },
 }
