@@ -46,6 +46,7 @@ and/or open issues at https://github.com/Schrodinger-Hat/ImageGoNord/issues/new
 import sys
 import re
 from os import path, listdir
+from typing import Union
 from ImageGoNord import GoNord
 
 class confarg:
@@ -149,12 +150,17 @@ def get_version():
     file_version = open(path.dirname(path.realpath(__file__)) + "/VERSION")
     return file_version.readline()
 
-def main():
+def main(argv: Union[list[str] , None] = None):
     global OUTPUT_IMAGE_NAME
     global PALETTE_CHANGED
     global QUIET_MODE
+
+    output_image_name = OUTPUT_IMAGE_NAME
+
+    if argv is None:
+        argv = sys.argv.copy()
     
-    args = sys.argv[1:]
+    args = argv[1:]
 
     if len(args) == 0:
         print(__doc__)
@@ -215,13 +221,13 @@ def main():
         condition_argument = key in ["--out", "-o"]
         if condition_argument:
             if len(key_value) > 1:
-                OUTPUT_IMAGE_NAME = key_value[1]
+                output_image_name = key_value[1]
                 # If the image name have already an extension do not set the
                 # default one
-                OUTPUT_IMAGE_NAME += "" if re.search(
-                    IMAGE_PATTERN, OUTPUT_IMAGE_NAME) else DEFAULT_EXTENSION
+                output_image_name += "" if re.search(
+                    IMAGE_PATTERN, output_image_name) else DEFAULT_EXTENSION
                 to_console(confarg.logs["out"][0].format(
-                    src_path + "/" + OUTPUT_IMAGE_NAME))
+                    src_path + "/" + output_image_name))
             else:
                 to_console(confarg.logs["out"][1].format(arg),
                            confarg.logs["out"][-1],
@@ -325,6 +331,6 @@ def main():
 
     quantize_image = go_nord.convert_image(
         image,
-        save_path=OUTPUT_IMAGE_NAME)
+        save_path=output_image_name)
 
     return 0

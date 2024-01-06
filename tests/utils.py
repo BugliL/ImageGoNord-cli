@@ -9,8 +9,14 @@ def run_image_go_nord_client(*args):
     :param args: The arguments to pass directly to the script.
     """
 
-    command = [sys.executable, (str(Path.cwd() / "src" / "image_go_nord_client")), *args]
-    return " ".join(command), subprocess.check_output(command, universal_newlines=True, stderr=subprocess.STDOUT )
+    command = [
+        sys.executable,
+        (str(Path.cwd() / "src" / "image_go_nord_client")),
+        *args,
+    ]
+    return " ".join(command), subprocess.check_output(
+        command, universal_newlines=True, stderr=subprocess.STDOUT
+    )
 
 
 def is_image_empty(image_path):
