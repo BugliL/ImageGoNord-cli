@@ -235,7 +235,7 @@ def main(argv: Union[list[str] , None] = None):
                 return 1
             continue
 
-        condition_argument = key in ["--no-avg", "-na"]
+        condition_argument = key in ["--no-avg", "-na", "--no-avg-pixels"]
         if condition_argument:
             if len(key_value) > 1:
                 to_console(confarg.logs["navg"][1].format(arg),

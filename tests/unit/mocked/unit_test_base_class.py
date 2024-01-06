@@ -22,4 +22,4 @@ class UnitTestBaseClass(TestCase):
 
         self.go_nord_patch = patch("image_go_nord_client.main.GoNord")
         self.mocked_go_nord = self.go_nord_patch.start()
-        self.mocked_go_nord_instance = self.mocked_go_nord.return_value
+        self.mock_gn_instance = self.mocked_go_nord.return_value
