@@ -2,7 +2,6 @@ from unittest import TestCase
 
 import io
 from pathlib import Path
-from unittest import TestCase
 from unittest.mock import patch
 
 
