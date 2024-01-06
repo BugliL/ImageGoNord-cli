@@ -19,7 +19,7 @@ class ClientShould(UnitTestBaseClass):
         main(
             argv=[
                 "image-go-nord-client",
-                "--no-avg-pixels",
+                "--no-avg",
                 "--img=file2.png",
                 "--out=output.jpg",
             ]

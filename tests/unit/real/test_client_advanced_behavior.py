@@ -25,7 +25,7 @@ class ClientShould(UnitTestBaseClass):
                 self.data / "rainbow_nord_na_square.png",
                 f"-i={input_image_path}",
                 f"-o={output_image_path}",
-                "--no-avg-pixels",
+                "--no-avg",
             )
 
     def test_convert_to_nord_palette_using_no_avg_pixels_short_parameter(self):
