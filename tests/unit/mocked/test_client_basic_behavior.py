@@ -1,4 +1,4 @@
-from image_go_nord_client.main import main, parser
+from image_go_nord_client.main import main
 from .unit_test_base_class import UnitTestBaseClass
 
 from unittest.mock import ANY
@@ -6,15 +6,15 @@ from unittest.mock import ANY
 
 class ClientShould(UnitTestBaseClass):
     def test_return_docs_when_nothing_is_given(self):
-        main(argv=["image-go-nord-client"])
+        with self.assertRaises(SystemExit):
+            main(argv=["image-go-nord-client"])
+
         self.mock_gn_instance.open_image.assert_not_called()
         self.mock_gn_instance.convert_image.assert_not_called()
         self.assertIn(
-            "ImageGoNord, a converter for a rgb images to norththeme palette",
-            self.mocked_stdout.getvalue(),
+            "image-go-nord-client: error: the following arguments are required: -i/--img",
+            self.mocked_stderr.getvalue(),
         )
-
-        self.assertEqual(parser.format_help(), self.mocked_stdout.getvalue())
 
     def test_return_docs_when_given_help_parameter(self):
         with self.assertRaises(SystemExit):
@@ -27,8 +27,9 @@ class ClientShould(UnitTestBaseClass):
             self.mocked_stdout.getvalue(),
         )
 
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(SystemExit) as cm:
             main(argv=["image-go-nord-client", "-h"])
+            self.assertEqual(0, cm.exception.code)
 
         self.mock_gn_instance.open_image.assert_not_called()
         self.mock_gn_instance.convert_image.assert_not_called()
@@ -38,12 +39,18 @@ class ClientShould(UnitTestBaseClass):
         )
 
     def test_return_version_docs_when_given_version_parameter(self):
-        main(argv=["image-go-nord-client", "--version"])
+        with self.assertRaises(SystemExit) as cm:
+            main(argv=["image-go-nord-client", "--version"])
+            self.assertEqual(0, cm.exception.code)
+
         self.assertEqual("0.1.0", self.mocked_stdout.getvalue().strip())
         self.mock_gn_instance.open_image.assert_not_called()
         self.mock_gn_instance.convert_image.assert_not_called()
 
-        main(argv=["image-go-nord-client", "-v"])
+        with self.assertRaises(SystemExit) as cm:
+            main(argv=["image-go-nord-client", "-v"])
+            self.assertEqual(0, cm.exception.code)
+
         self.assertIn("0.1.0", self.mocked_stdout.getvalue().strip())
         self.mock_gn_instance.open_image.assert_not_called()
         self.mock_gn_instance.convert_image.assert_not_called()

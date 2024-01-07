@@ -13,11 +13,16 @@ class UnitTestBaseClass(TestCase):
 
     def tearDown(self) -> None:
         self.stdout_patch.stop()
+        self.stderr_patch.stop()
         self.mocked_go_nord.stop()
 
     def setUp(self) -> None:
+        self.maxDiff = None
         self.stdout_patch = patch("sys.stdout", new_callable=io.StringIO)
         self.mocked_stdout = self.stdout_patch.start()
+
+        self.stderr_patch = patch("sys.stderr", new_callable=io.StringIO)
+        self.mocked_stderr = self.stderr_patch.start()
 
         self.go_nord_patch = patch("image_go_nord_client.main.GoNord")
         self.mocked_go_nord = self.go_nord_patch.start()

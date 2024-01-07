@@ -121,37 +121,14 @@ def to_console(*params):
         print(param)
 
 
-def get_version():
-    """<Short Description>
-
-      <Description>
-
-    Parameters
-    ----------
-    <argument name>: <type>
-      <argument description>
-    <argument>: <type>
-      <argument description>
-
-    Returns
-    -------
-    <type>
-      <description>
-    """
-    file_version = open(path.dirname(path.realpath(__file__)) + "/VERSION")
-    return file_version.readline()
-
-
 parser = argparse.ArgumentParser(
     description=__doc__, 
     add_help=True, 
     prog="image-go-nord-client",
-    usage="%(prog)s [options]",
     formatter_class=RawDescriptionHelpFormatter,
 )
-
-parser.add_argument("-v", "--version", action="store_true", dest="show_version", help="show version number and exit")
-parser.add_argument("-i", "--img", type=str, dest="input_path", metavar="PATH", help="specify input image name")
+parser.add_argument("-v", "--version", action="version", version=VERSION, help="show version number and exit")
+parser.add_argument("-i", "--img", type=str, dest="input_path", metavar="PATH", required=True, help="specify input image name")
 
 def main(argv: Union[list[str], None] = None):
     global OUTPUT_IMAGE_NAME
@@ -168,10 +145,6 @@ def main(argv: Union[list[str], None] = None):
     if not argv:
         parser.print_help()
         return 1
-
-    if arguments.show_version:
-        print(VERSION)
-        return 0
 
     if not arguments.input_path:
         parser.print_help()
