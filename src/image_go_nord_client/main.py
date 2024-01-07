@@ -158,6 +158,29 @@ parser.add_argument(
     help="use blur on the final result",
 )
 
+def parse_pixels_area(value: str):
+    if not value:
+        raise TypeError( "Invalid value for pixels area: {}".format(value))
+    
+    values = value.split(",") 
+    if len(values) > 2:
+        raise ValueError( "Invalid number of parameters for pixels area: {}".format(value))
+    
+    if not all(map(lambda x: x.isdigit(), values)):
+        raise ValueError( "Invalid value for pixels area, all should be integer: {}".format(value))
+    
+    return values
+
+parser.add_argument(
+    "-pa",
+    "--pixels-area",
+    type=parse_pixels_area,
+    dest="pixels_area",
+    metavar="INT[,INT]",
+    default=[],
+    help="specify pixels of the area for average color calculation",
+)
+
 
 def main(argv: Union[list[str], None] = None):
     global OUTPUT_IMAGE_NAME
@@ -188,7 +211,6 @@ def main(argv: Union[list[str], None] = None):
 
     # Get all palettes created
     palettes = [folder.name.lower() for folder in (src_path / "palettes").iterdir()]
-    # palettes = [palette.lower() for palette in listdir(src_path + "/palettes")]
 
     image = go_nord.open_image(arguments.input_path)
     logging.info("Loading input image: %s", arguments.input_path)
@@ -204,36 +226,16 @@ def main(argv: Union[list[str], None] = None):
         go_nord.disable_avg_algorithm()
         logging.info("No average pixels selected for algorithm optimization")
 
+    if arguments.pixels_area:
+        w = arguments.pixels_area[0]
+        h = arguments.pixels_area[1] if len(arguments.pixels_area) > 1 else w
+        go_nord.set_avg_box_data(w=w, h=h)
+        logging.info("Set up pixels width area: %s", w)
+        logging.info("Set up pixels height area: %s", h)
+
     for arg in args:
         key_value = [kv for kv in arg.split("=", 1) if kv != ""]
         key = key_value[0].lower()
-
-        condition_argument = key in ["-pa", "--pixels-area"]
-        if condition_argument:
-            try:
-                area_value = key_value[1].split(",")
-                try:
-                    go_nord.set_avg_box_data(w=area_value[0], h=area_value[1])
-                    to_console(
-                        arguments.quiet_mode,
-                        confarg.logs["pxls"][0].format(area_value[0]),
-                        confarg.logs["pxls"][1].format(area_value[1]),
-                    )
-                except IndexError:
-                    go_nord.set_avg_box_data(w=area_value[0], h=area_value[0])
-                    to_console(
-                        arguments.quiet_mode,
-                        confarg.logs["pxls"][0].format(area_value[0]),
-                        confarg.logs["pxls"][1].format(area_value[0]),
-                    )
-            except IndexError:
-                to_console(
-                    arguments.quiet_mode,
-                    confarg.logs["pxls"][-2].format(arg),
-                    confarg.logs["pxls"][-1],
-                    confarg.logs["err"][0],
-                )
-                return 1
 
         for palette in palettes:
             if "--{}".format(palette) in key:
