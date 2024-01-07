@@ -1,14 +1,11 @@
 #! /usr/bin/env python3
-"""ImageGoNord, a converter for a rgb images to norththeme palette.
+__doc__="""ImageGoNord, a converter for a rgb images to norththeme palette.
 Usage: gonord [OPTION]...
 
 Mandatory arguments to long options are mandatory for short options too.
 
 Startup:
-  -h,  --help                       print this help and exit
 
-  -v,  --version                    display the version of Image Go Nord and
-                                    exit
 
 Logging:
   -q,  --quiet                      quiet (no output)
@@ -43,11 +40,14 @@ Email bug reports, questions, discussions to <schrodinger.hat.show@gmail.com>
 and/or open issues at https://github.com/Schrodinger-Hat/ImageGoNord/issues/new
 """
 
+import argparse
+from pathlib import Path
 import sys
 import re
 from os import path, listdir
 from typing import Union
 from ImageGoNord import GoNord
+from argparse import RawDescriptionHelpFormatter
 
 
 class confarg:
@@ -90,7 +90,7 @@ class confarg:
     }
 
 
-VERSION = open(path.dirname(path.realpath(__file__)) + "/VERSION", "r").readline()
+VERSION = (Path(__file__).parent / "VERSION").read_text().strip()
 DEFAULT_EXTENSION = ".png"
 QUIET_MODE = False
 OUTPUT_IMAGE_NAME = "nord" + DEFAULT_EXTENSION
@@ -142,6 +142,17 @@ def get_version():
     return file_version.readline()
 
 
+parser = argparse.ArgumentParser(
+    description=__doc__, 
+    add_help=True, 
+    prog="image-go-nord-client",
+    usage="%(prog)s [options]",
+    formatter_class=RawDescriptionHelpFormatter,
+)
+
+parser.add_argument("-v", "--version", action="store_true", dest="show_version", help="show version number and exit")
+parser.add_argument("-i", "--img", type=str, dest="input_path", metavar="PATH", help="specify input image name")
+
 def main(argv: Union[list[str], None] = None):
     global OUTPUT_IMAGE_NAME
     global QUIET_MODE
@@ -151,39 +162,22 @@ def main(argv: Union[list[str], None] = None):
 
     if argv is None:
         argv = sys.argv.copy()
-
+        
+    arguments, _ = parser.parse_known_args(argv.copy())
     args = argv[1:]
-
-    if len(args) == 0:
-        print(__doc__)
+    if not argv:
+        parser.print_help()
         return 1
 
-    # If help given then print the docstring of the module and exit
-    if "--help" in args or "-h" in args:
-        print(__doc__)
-        return 0
-
-    if "--version" in args or "-v" in args:
+    if arguments.show_version:
         print(VERSION)
         return 0
 
-    go_nord = GoNord()
-
-    IMAGE_ARGUMENT_PATTERN = r"-(-img|i)=*"
-    IS_IMAGE_PASSED = False
-    for arg in args:
-        searched_arg = re.search(IMAGE_ARGUMENT_PATTERN, arg)
-        if searched_arg is not None:
-            IS_IMAGE_PASSED = True
-            break
-    if not IS_IMAGE_PASSED:
-        to_console(
-            confarg.logs["img"][1].format(arg),
-            confarg.logs["img"][-1],
-            confarg.logs["err"][0],
-        )
+    if not arguments.input_path:
+        parser.print_help()
         return 1
-
+    
+    go_nord = GoNord()
     QUIET_MODE = "-q" in args or "--quiet" in args
 
     # Get absolute path of source project

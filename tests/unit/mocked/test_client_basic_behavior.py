@@ -1,4 +1,4 @@
-from image_go_nord_client.main import main
+from image_go_nord_client.main import main, parser
 from .unit_test_base_class import UnitTestBaseClass
 
 from unittest.mock import ANY
@@ -14,8 +14,12 @@ class ClientShould(UnitTestBaseClass):
             self.mocked_stdout.getvalue(),
         )
 
+        self.assertEqual(parser.format_help(), self.mocked_stdout.getvalue())
+
     def test_return_docs_when_given_help_parameter(self):
-        main(argv=["image-go-nord-client", "--help"])
+        with self.assertRaises(SystemExit):
+            main(argv=["image-go-nord-client", "--help"])
+
         self.mock_gn_instance.open_image.assert_not_called()
         self.mock_gn_instance.convert_image.assert_not_called()
         self.assertIn(
@@ -23,7 +27,9 @@ class ClientShould(UnitTestBaseClass):
             self.mocked_stdout.getvalue(),
         )
 
-        main(argv=["image-go-nord-client", "-h"])
+        with self.assertRaises(SystemExit):
+            main(argv=["image-go-nord-client", "-h"])
+
         self.mock_gn_instance.open_image.assert_not_called()
         self.mock_gn_instance.convert_image.assert_not_called()
         self.assertIn(
