@@ -1,14 +1,21 @@
 #! /usr/bin/env python3
-__doc__="""ImageGoNord, a converter for a rgb images to norththeme palette.
+
+import argparse
+from pathlib import Path
+import sys
+import re
+from os import path, listdir
+from typing import Union
+from ImageGoNord import GoNord
+from argparse import RawDescriptionHelpFormatter
+
+__doc__ = """ImageGoNord, a converter for a rgb images to norththeme palette.
 Usage: gonord [OPTION]...
 
 Mandatory arguments to long options are mandatory for short options too.
 
 Startup:
 
-
-Logging:
-  -q,  --quiet                      quiet (no output)
 
 I/O Images:
   -i=FILE,  --img=FILE              specify input image name
@@ -39,15 +46,6 @@ Conversion:
 Email bug reports, questions, discussions to <schrodinger.hat.show@gmail.com>
 and/or open issues at https://github.com/Schrodinger-Hat/ImageGoNord/issues/new
 """
-
-import argparse
-from pathlib import Path
-import sys
-import re
-from os import path, listdir
-from typing import Union
-from ImageGoNord import GoNord
-from argparse import RawDescriptionHelpFormatter
 
 
 class confarg:
@@ -92,54 +90,63 @@ class confarg:
 
 VERSION = (Path(__file__).parent / "VERSION").read_text().strip()
 DEFAULT_EXTENSION = ".png"
-QUIET_MODE = False
 OUTPUT_IMAGE_NAME = "nord" + DEFAULT_EXTENSION
 
 __ALL__ = ["to_console", "get_version", "main"]
 
 
-def to_console(*params):
-    """<Short Description>
-
-      <Description>
-
-    Parameters
-    ----------
-    <argument name>: <type>
-      <argument description>
-    <argument>: <type>
-      <argument description>
-
-    Returns
-    -------
-    <type>
-      <description>
-    """
-    if QUIET_MODE:
+def to_console(quiet_mode, *params):
+    if quiet_mode:
         return
+
     for param in params:
         print(param)
 
 
 parser = argparse.ArgumentParser(
-    description=__doc__, 
-    add_help=True, 
+    description=__doc__,
+    add_help=True,
     prog="image-go-nord-client",
     formatter_class=RawDescriptionHelpFormatter,
 )
-parser.add_argument("-v", "--version", action="version", version=VERSION, help="show version number and exit")
-parser.add_argument("-i", "--img", type=str, dest="input_path", metavar="PATH", required=True, help="specify input image name")
+
+parser.add_argument(
+    "-v",
+    "--version",
+    action="version",
+    version=VERSION,
+    help="show version number and exit",
+)
+
+parser.add_argument(
+    "-i",
+    "--img",
+    type=str,
+    dest="input_path",
+    metavar="PATH",
+    required=True,
+    help="specify input image name",
+)
+
+parser.add_argument(
+    "-q",
+    "--quiet",
+    action="store_true",
+    dest="quiet_mode",
+    default=False,
+    help="quiet (no output)",
+)
+
 
 def main(argv: Union[list[str], None] = None):
     global OUTPUT_IMAGE_NAME
-    global QUIET_MODE
 
     output_image_name = OUTPUT_IMAGE_NAME
     PALETTE_CHANGED = False
 
     if argv is None:
         argv = sys.argv.copy()
-        
+
     arguments, _ = parser.parse_known_args(argv.copy())
     args = argv[1:]
     if not argv:
@@ -149,9 +156,8 @@ def main(argv: Union[list[str], None] = None):
     if not arguments.input_path:
         parser.print_help()
         return 1
-    
+
     go_nord = GoNord()
-    QUIET_MODE = "-q" in args or "--quiet" in args
 
     # Get absolute path of source project
     src_path = path.dirname(path.realpath(__file__))
@@ -171,9 +177,13 @@ def main(argv: Union[list[str], None] = None):
                 and re.search(IMAGE_PATTERN, key_value[1]) is not None
             ):
                 image = go_nord.open_image(key_value[1])
-                to_console(confarg.logs["img"][0].format(src_path + "/" + key_value[1]))
+                to_console(
+                    arguments.quiet_mode,
+                    confarg.logs["img"][0].format(src_path + "/" + key_value[1]),
+                )
             else:
                 to_console(
+                    arguments.quiet_mode,
                     confarg.logs["img"][1].format(arg),
                     confarg.logs["img"][-1],
                     confarg.logs["err"][0],
@@ -193,10 +203,12 @@ def main(argv: Union[list[str], None] = None):
                     else DEFAULT_EXTENSION
                 )
                 to_console(
-                    confarg.logs["out"][0].format(src_path + "/" + output_image_name)
+                    arguments.quiet_mode,
+                    confarg.logs["out"][0].format(src_path + "/" + output_image_name),
                 )
             else:
                 to_console(
+                    arguments.quiet_mode,
                     confarg.logs["out"][1].format(arg),
                     confarg.logs["out"][-1],
                     confarg.logs["err"][0],
@@ -208,6 +220,7 @@ def main(argv: Union[list[str], None] = None):
         if condition_argument:
             if len(key_value) > 1:
                 to_console(
+                    arguments.quiet_mode,
                     confarg.logs["navg"][1].format(arg),
                     confarg.logs["navg"][-1],
                     confarg.logs["err"][0],
@@ -215,7 +228,7 @@ def main(argv: Union[list[str], None] = None):
                 return 1
             else:
                 go_nord.disable_avg_algorithm()
-                to_console(confarg.logs["navg"][0])
+                to_console(arguments.quiet_mode, confarg.logs["navg"][0])
             continue
 
         condition_argument = key in ["-pa", "--pixels-area"]
@@ -225,17 +238,20 @@ def main(argv: Union[list[str], None] = None):
                 try:
                     go_nord.set_avg_box_data(w=area_value[0], h=area_value[1])
                     to_console(
+                        arguments.quiet_mode,
                         confarg.logs["pxls"][0].format(area_value[0]),
                         confarg.logs["pxls"][1].format(area_value[1]),
                     )
                 except IndexError:
                     go_nord.set_avg_box_data(w=area_value[0], h=area_value[0])
                     to_console(
+                        arguments.quiet_mode,
                         confarg.logs["pxls"][0].format(area_value[0]),
                         confarg.logs["pxls"][1].format(area_value[0]),
                     )
             except IndexError:
                 to_console(
+                    arguments.quiet_mode,
                     confarg.logs["pxls"][-2].format(arg),
                     confarg.logs["pxls"][-1],
                     confarg.logs["err"][0],
@@ -246,6 +262,7 @@ def main(argv: Union[list[str], None] = None):
         if condition_argument:
             if len(key_value) > 1:
                 to_console(
+                    arguments.quiet_mode,
                     confarg.logs["blur"][-2].format(arg),
                     confarg.logs["blur"][-1],
                     confarg.logs["err"][0],
@@ -253,7 +270,7 @@ def main(argv: Union[list[str], None] = None):
                 return 1
             else:
                 go_nord.enable_gaussian_blur()
-                to_console(confarg.logs["blur"][0])
+                to_console(arguments.quiet_mode, confarg.logs["blur"][0])
             continue
         del condition_argument
 
@@ -271,7 +288,10 @@ def main(argv: Union[list[str], None] = None):
                         selected_color.lower()
                         for selected_color in key_value[1].split(",")
                     ]
-                    to_console(confarg.logs["pals"][1].format(palette.capitalize()))
+                    to_console(
+                        arguments.quiet_mode,
+                        confarg.logs["pals"][1].format(palette.capitalize()),
+                    )
                     for selected_color in selected_colors:
                         lowered_palette = list(map(str.lower, palette_set))
                         if selected_color in lowered_palette:
@@ -280,17 +300,29 @@ def main(argv: Union[list[str], None] = None):
                                 palette_set[index_color] + ".txt"
                             )
                             to_console(
-                                confarg.logs["pals"][2].format(palette_set[index_color])
+                                arguments.quiet_mode,
+                                confarg.logs["pals"][2].format(
+                                    palette_set[index_color]
+                                ),
                             )
                             PALETTE_CHANGED = True
                         else:
-                            to_console(confarg.logs["pals"][-1].format(selected_color))
+                            to_console(
+                                arguments.quiet_mode,
+                                confarg.logs["pals"][-1].format(selected_color),
+                            )
                     for palette_color in palette_set:
                         if palette_color.lower() not in selected_colors:
-                            to_console(confarg.logs["pals"][3].format(palette_color))
+                            to_console(
+                                arguments.quiet_mode,
+                                confarg.logs["pals"][3].format(palette_color),
+                            )
                 else:
                     PALETTE_CHANGED = True
-                    to_console(confarg.logs["pals"][0].format(palette.capitalize()))
+                    to_console(
+                        arguments.quiet_mode,
+                        confarg.logs["pals"][0].format(palette.capitalize()),
+                    )
                     palette_path = src_path + "/palettes/" + palette.capitalize() + "/"
                     go_nord.reset_palette()
                     palette_set = [
@@ -302,7 +334,7 @@ def main(argv: Union[list[str], None] = None):
                         go_nord.add_file_to_palette(palette_color + ".txt")
 
     if not PALETTE_CHANGED:
-        to_console(confarg.logs["pals"][4])
+        to_console(arguments.quiet_mode, confarg.logs["pals"][4])
         palette_path = src_path + "/palettes/Nord/"
         go_nord.reset_palette()
         palette_set = [
