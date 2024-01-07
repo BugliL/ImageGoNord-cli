@@ -33,9 +33,6 @@ Conversion:
   -pa=INT,INT, --pixel-area=INT,INT specify pixels of the area for average
                                     color calculation
 
-  -b, --blur                        use blur on the final result
-
-
 Email bug reports, questions, discussions to <schrodinger.hat.show@gmail.com>
 and/or open issues at https://github.com/Schrodinger-Hat/ImageGoNord/issues/new
 """
@@ -95,6 +92,7 @@ def to_console(quiet_mode, *params):
     for param in params:
         print(param)
 
+logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 
 parser = argparse.ArgumentParser(
     description=__doc__,
@@ -150,6 +148,14 @@ parser.add_argument(
     help="do not use the average pixels optimization algorithm on conversion",
 )
 
+parser.add_argument(
+    "-b",
+    "--blur",
+    action="store_true",
+    dest="enable_blur",
+    default=False,
+    help="use blur on the final result",
+)
 
 def main(argv: Union[list[str], None] = None):
     global OUTPUT_IMAGE_NAME
@@ -188,6 +194,10 @@ def main(argv: Union[list[str], None] = None):
     output_image_path = arguments.output_path
     logging.info("Set output image name: %s", output_image_path)
 
+    if arguments.enable_blur:
+        go_nord.enable_gaussian_blur()
+        logging.info("Blur enabled")
+        
     if arguments.disable_avg_pixels:
         go_nord.disable_avg_algorithm()
         logging.info("No average pixels selected for algorithm optimization")
@@ -222,22 +232,6 @@ def main(argv: Union[list[str], None] = None):
                     confarg.logs["err"][0],
                 )
                 return 1
-
-        condition_argument = key in ["--blur", "-b"]
-        if condition_argument:
-            if len(key_value) > 1:
-                to_console(
-                    arguments.quiet_mode,
-                    confarg.logs["blur"][-2].format(arg),
-                    confarg.logs["blur"][-1],
-                    confarg.logs["err"][0],
-                )
-                return 1
-            else:
-                go_nord.enable_gaussian_blur()
-                to_console(arguments.quiet_mode, confarg.logs["blur"][0])
-            continue
-        del condition_argument
 
         for palette in palettes:
             if "--{}".format(palette) in key:

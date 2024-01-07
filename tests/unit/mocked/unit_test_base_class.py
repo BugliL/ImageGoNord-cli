@@ -4,7 +4,6 @@ import io
 from pathlib import Path
 from unittest.mock import patch
 
-
 class UnitTestBaseClass(TestCase):
     DATA_PATH = Path(__file__).parent / "data"
     DEFAULT_OUTPUT_FILE_NAME = "nord.png"
@@ -15,6 +14,8 @@ class UnitTestBaseClass(TestCase):
         self.stdout_patch.stop()
         self.stderr_patch.stop()
         self.mocked_go_nord.stop()
+        
+        
 
     def setUp(self) -> None:
         self.maxDiff = None
