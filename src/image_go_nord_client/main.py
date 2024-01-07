@@ -4,7 +4,7 @@ import logging
 import argparse
 from pathlib import Path
 import sys
-import re
+
 from os import listdir
 from typing import Union
 from ImageGoNord import GoNord
@@ -18,11 +18,6 @@ Mandatory arguments to long options are mandatory for short options too.
 Startup:
 
 
-I/O Images:
-  -i=FILE,  --img=FILE              specify input image name
-
-  -o=FILE,  --out=FILE              specify output image name
-
 Theme options:
   --PALETTE[=LIST_COLOR_SET]        the palettes can be found in the
                                     src/palettes/ directory (actually there is
@@ -34,9 +29,6 @@ Theme options:
                                     Ex: python src/cli.py --monokai
 
 Conversion:
-
-  -na, --no-avg                     do not use the average pixels optimization
-                                    algorithm on conversion
 
   -pa=INT,INT, --pixel-area=INT,INT specify pixels of the area for average
                                     color calculation
@@ -149,6 +141,15 @@ parser.add_argument(
     help="quiet (no output)",
 )
 
+parser.add_argument(
+    "-na",
+    "--no-avg",
+    action="store_true",
+    dest="disable_avg_pixels",
+    default=False,
+    help="do not use the average pixels optimization algorithm on conversion",
+)
+
 
 def main(argv: Union[list[str], None] = None):
     global OUTPUT_IMAGE_NAME
@@ -183,28 +184,17 @@ def main(argv: Union[list[str], None] = None):
 
     image = go_nord.open_image(arguments.input_path)
     logging.info("Loading input image: %s", arguments.input_path)
-    
+
     output_image_path = arguments.output_path
     logging.info("Set output image name: %s", output_image_path)
+
+    if arguments.disable_avg_pixels:
+        go_nord.disable_avg_algorithm()
+        logging.info("No average pixels selected for algorithm optimization")
 
     for arg in args:
         key_value = [kv for kv in arg.split("=", 1) if kv != ""]
         key = key_value[0].lower()
-
-        condition_argument = key in ["--no-avg", "-na", "--no-avg"]
-        if condition_argument:
-            if len(key_value) > 1:
-                to_console(
-                    arguments.quiet_mode,
-                    confarg.logs["navg"][1].format(arg),
-                    confarg.logs["navg"][-1],
-                    confarg.logs["err"][0],
-                )
-                return 1
-            else:
-                go_nord.disable_avg_algorithm()
-                to_console(arguments.quiet_mode, confarg.logs["navg"][0])
-            continue
 
         condition_argument = key in ["-pa", "--pixels-area"]
         if condition_argument:
@@ -313,7 +303,8 @@ def main(argv: Union[list[str], None] = None):
         palette_path = src_path / "palettes" / "Nord"
         go_nord.reset_palette()
         palette_set = [
-            palette_file.name.replace(".txt", "") for palette_file in palette_path.iterdir()
+            palette_file.name.replace(".txt", "")
+            for palette_file in palette_path.iterdir()
         ]
         go_nord.set_palette_lookup_path(str(palette_path) + "/")
         for palette_color in palette_set:
