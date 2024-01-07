@@ -30,7 +30,7 @@ class ClientShould(UnitTestBaseClass):
         self.mock_gn_instance.convert_image.assert_called_with(
             ANY, save_path="output.jpg"
         )
-        
+
     def test_convert_to_nord_palette_using_short_blur_parameter(self):
         main(argv=["image-go-nord-client", "-b", "-i=file3.png"])
         self.mock_gn_instance.enable_gaussian_blur.assert_called_once()

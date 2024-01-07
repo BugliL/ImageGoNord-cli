@@ -92,6 +92,7 @@ def to_console(quiet_mode, *params):
     for param in params:
         print(param)
 
+
 logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 
 parser = argparse.ArgumentParser(
@@ -157,6 +158,7 @@ parser.add_argument(
     help="use blur on the final result",
 )
 
+
 def main(argv: Union[list[str], None] = None):
     global OUTPUT_IMAGE_NAME
 
@@ -197,7 +199,7 @@ def main(argv: Union[list[str], None] = None):
     if arguments.enable_blur:
         go_nord.enable_gaussian_blur()
         logging.info("Blur enabled")
-        
+
     if arguments.disable_avg_pixels:
         go_nord.disable_avg_algorithm()
         logging.info("No average pixels selected for algorithm optimization")
