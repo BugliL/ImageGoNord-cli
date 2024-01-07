@@ -1,10 +1,11 @@
 #! /usr/bin/env python3
 
+import logging
 import argparse
 from pathlib import Path
 import sys
 import re
-from os import path, listdir
+from os import listdir
 from typing import Union
 from ImageGoNord import GoNord
 from argparse import RawDescriptionHelpFormatter
@@ -125,8 +126,19 @@ parser.add_argument(
     dest="input_path",
     metavar="PATH",
     required=True,
-    help="specify input image name",
+    help="specify input image path",
 )
+
+parser.add_argument(
+    "-o",
+    "--out",
+    type=str,
+    dest="output_path",
+    metavar="PATH",
+    default=OUTPUT_IMAGE_NAME,
+    help="specify output image path",
+)
+
 
 parser.add_argument(
     "-q",
@@ -141,7 +153,7 @@ parser.add_argument(
 def main(argv: Union[list[str], None] = None):
     global OUTPUT_IMAGE_NAME
 
-    output_image_name = OUTPUT_IMAGE_NAME
+    output_image_path = OUTPUT_IMAGE_NAME
     PALETTE_CHANGED = False
 
     if argv is None:
@@ -157,64 +169,27 @@ def main(argv: Union[list[str], None] = None):
         parser.print_help()
         return 1
 
+    if arguments.quiet_mode:
+        logging.basicConfig(level=logging.CRITICAL)
+
     go_nord = GoNord()
 
     # Get absolute path of source project
-    src_path = path.dirname(path.realpath(__file__))
+    src_path = Path(__file__).parent
 
     # Get all palettes created
-    palettes = [palette.lower() for palette in listdir(src_path + "/palettes")]
+    palettes = [folder.name.lower() for folder in (src_path / "palettes").iterdir()]
+    # palettes = [palette.lower() for palette in listdir(src_path + "/palettes")]
+
+    image = go_nord.open_image(arguments.input_path)
+    logging.info("Loading input image: %s", arguments.input_path)
+    
+    output_image_path = arguments.output_path
+    logging.info("Set output image name: %s", output_image_path)
 
     for arg in args:
         key_value = [kv for kv in arg.split("=", 1) if kv != ""]
         key = key_value[0].lower()
-
-        condition_argument = key in ["--img", "-i"]
-        IMAGE_PATTERN = r"([A-z]|[\/|\.|\-|\_|\s])*\.([a-z]{3}|[a-z]{4})$"
-        if condition_argument:
-            if (
-                len(key_value) > 1
-                and re.search(IMAGE_PATTERN, key_value[1]) is not None
-            ):
-                image = go_nord.open_image(key_value[1])
-                to_console(
-                    arguments.quiet_mode,
-                    confarg.logs["img"][0].format(src_path + "/" + key_value[1]),
-                )
-            else:
-                to_console(
-                    arguments.quiet_mode,
-                    confarg.logs["img"][1].format(arg),
-                    confarg.logs["img"][-1],
-                    confarg.logs["err"][0],
-                )
-                return 1
-            continue
-
-        condition_argument = key in ["--out", "-o"]
-        if condition_argument:
-            if len(key_value) > 1:
-                output_image_name = key_value[1]
-                # If the image name have already an extension do not set the
-                # default one
-                output_image_name += (
-                    ""
-                    if re.search(IMAGE_PATTERN, output_image_name)
-                    else DEFAULT_EXTENSION
-                )
-                to_console(
-                    arguments.quiet_mode,
-                    confarg.logs["out"][0].format(src_path + "/" + output_image_name),
-                )
-            else:
-                to_console(
-                    arguments.quiet_mode,
-                    confarg.logs["out"][1].format(arg),
-                    confarg.logs["out"][-1],
-                    confarg.logs["err"][0],
-                )
-                return 1
-            continue
 
         condition_argument = key in ["--no-avg", "-na", "--no-avg"]
         if condition_argument:
@@ -276,8 +251,8 @@ def main(argv: Union[list[str], None] = None):
 
         for palette in palettes:
             if "--{}".format(palette) in key:
-                palette_path = src_path + "/palettes/" + palette.capitalize() + "/"
-                go_nord.set_palette_lookup_path(palette_path)
+                palette_path = src_path / "palettes" / palette.capitalize()
+                go_nord.set_palette_lookup_path(str(palette_path) + "/")
                 if len(key_value) > 1:
                     go_nord.reset_palette()
                     palette_set = [
@@ -323,27 +298,27 @@ def main(argv: Union[list[str], None] = None):
                         arguments.quiet_mode,
                         confarg.logs["pals"][0].format(palette.capitalize()),
                     )
-                    palette_path = src_path + "/palettes/" + palette.capitalize() + "/"
+                    palette_path = src_path / "palettes" / palette.capitalize()
                     go_nord.reset_palette()
                     palette_set = [
                         palette_file.replace(".txt", "")
                         for palette_file in listdir(palette_path)
                     ]
-                    go_nord.set_palette_lookup_path(palette_path)
+                    go_nord.set_palette_lookup_path(str(palette_path) + "/")
                     for palette_color in palette_set:
                         go_nord.add_file_to_palette(palette_color + ".txt")
 
     if not PALETTE_CHANGED:
         to_console(arguments.quiet_mode, confarg.logs["pals"][4])
-        palette_path = src_path + "/palettes/Nord/"
+        palette_path = src_path / "palettes" / "Nord"
         go_nord.reset_palette()
         palette_set = [
-            palette_file.replace(".txt", "") for palette_file in listdir(palette_path)
+            palette_file.name.replace(".txt", "") for palette_file in palette_path.iterdir()
         ]
-        go_nord.set_palette_lookup_path(palette_path)
+        go_nord.set_palette_lookup_path(str(palette_path) + "/")
         for palette_color in palette_set:
             go_nord.add_file_to_palette(palette_color + ".txt")
 
-    quantize_image = go_nord.convert_image(image, save_path=output_image_name)
+    go_nord.convert_image(image, save_path=output_image_path)
 
     return 0
