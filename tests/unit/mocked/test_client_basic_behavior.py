@@ -78,6 +78,11 @@ class ClientShould(UnitTestBaseClass):
             ANY, save_path=self.DEFAULT_OUTPUT_FILE_PATH.name
         )
 
+        self.assertIn(
+            "[WARNING] No theme specified, use default Nord theme",
+            self.mocked_stdout.getvalue().strip(),
+        )
+
     def test_convert_to_nord_palette_when_given_only_long_img_parameter(self):
         main(argv=["image-go-nord-client", "--img=input3.png"])
         self.mock_gn_instance.open_image.assert_called_with("input3.png")

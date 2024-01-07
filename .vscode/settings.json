@@ -23,4 +23,5 @@
         "-p",
         "test*.py"
     ],
+    "editor.rulers": [80, 120]
 }

@@ -68,7 +68,13 @@ class ClientShould(UnitTestBaseClass):
 
     def test_raise_error_using_wrong_single_pixel_data_parameter(self):
         with self.assertRaises(SystemExit) as cm:
-            main(argv=["image-go-nord-client", "-i=file4.png", "--pixels-area=20,10,30"])
+            main(
+                argv=[
+                    "image-go-nord-client",
+                    "-i=file4.png",
+                    "--pixels-area=20,10,30",
+                ]
+            )
             self.assertEqual(2, cm.exception.code)
             self.assertIn(
                 "error: argument --pixels-area", self.mocked_stderr.getvalue().strip()
