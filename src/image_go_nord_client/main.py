@@ -166,15 +166,6 @@ def main(argv: Union[list[str], None] = None):
         argv = sys.argv.copy()
 
     arguments, uknown_args = parser.parse_known_args(argv.copy())
-    args = argv[1:]
-    if not argv:
-        parser.print_help()
-        return 1
-
-    if not arguments.input_path:
-        parser.print_help()
-        return 1
-
     if arguments.quiet_mode:
         logging.basicConfig(level=logging.CRITICAL)
 
