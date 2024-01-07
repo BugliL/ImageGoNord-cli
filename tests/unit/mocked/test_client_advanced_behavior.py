@@ -76,20 +76,11 @@ class ClientShould(UnitTestBaseClass):
                 ]
             )
             self.assertEqual(2, cm.exception.code)
-            self.assertIn(
-                "error: argument --pixels-area", self.mocked_stderr.getvalue().strip()
-            )
 
         with self.assertRaises(SystemExit) as cm:
             main(argv=["image-go-nord-client", "-i=file4.png", "--pixels-area"])
             self.assertEqual(2, cm.exception.code)
-            self.assertIn(
-                "error: argument --pixels-area", self.mocked_stderr.getvalue().strip()
-            )
 
         with self.assertRaises(SystemExit) as cm:
             main(argv=["image-go-nord-client", "-i=file4.png", "--pixels-area=xxx,10"])
             self.assertEqual(2, cm.exception.code)
-            self.assertIn(
-                "error: argument --pixels-area", self.mocked_stderr.getvalue().strip()
-            )

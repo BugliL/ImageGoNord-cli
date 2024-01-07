@@ -1,4 +1,5 @@
 import argparse
+from dataclasses import dataclass
 from pathlib import Path
 
 from argparse import RawDescriptionHelpFormatter
@@ -48,14 +49,43 @@ def parse_pixels_area(value: str):
     return values
 
 
-def get_default_palette_path() -> str:
-    return str(Path(__file__).parent / "palettes" / "Nord")
+@dataclass
+class Color:
+    name: str
+    path: Path
 
 
-def get_palette_list() -> list[str]:
+@dataclass
+class Palette:
+    name: str
+    path: Path
+    colors: list[Color]
+
+
+def get_palette_list() -> list[Palette]:
     return [
-        folder.name.lower() for folder in (Path(__file__).parent / "palettes").iterdir()
+        Palette(
+            name=folder.name.lower(),
+            path=folder,
+            colors=[
+                Color(name=file.name.replace(".txt", ""), path=file)
+                for file in folder.iterdir()
+            ],
+        )
+        for folder in (Path(__file__).parent / "palettes").iterdir()
     ]
+
+
+def get_default_palette() -> Palette:
+    default_path = Path(__file__).parent / "palettes" / "nord"
+    return Palette(
+        name="nord",
+        path=default_path,
+        colors=[
+            Color(name=file.name.replace(".txt", ""), path=file)
+            for file in default_path.iterdir()
+        ],
+    )
 
 
 def get_argument_parser() -> argparse.ArgumentParser:
@@ -126,7 +156,7 @@ def get_argument_parser() -> argparse.ArgumentParser:
         "--pixels-area",
         type=parse_pixels_area,
         dest="pixels_area",
-        metavar="INT[,INT]",
+        metavar="WEIGHT[,HEIGHT]",
         default=[],
         help="specify pixels of the area for average color calculation",
     )

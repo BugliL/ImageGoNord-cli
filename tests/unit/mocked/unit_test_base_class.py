@@ -18,10 +18,10 @@ class UnitTestBaseClass(TestCase):
 
     def setUp(self) -> None:
         self.maxDiff = None
-        self.stdout_patch = patch("sys.stdout", new_callable=io.StringIO)
+        self.stdout_patch = patch("sys.stdout", io.StringIO())
         self.mocked_stdout = self.stdout_patch.start()
 
-        self.stderr_patch = patch("sys.stderr", new_callable=io.StringIO)
+        self.stderr_patch = patch("sys.stderr", io.StringIO())
         self.mocked_stderr = self.stderr_patch.start()
 
         self.go_nord_patch = patch("image_go_nord_client.main.GoNord")
