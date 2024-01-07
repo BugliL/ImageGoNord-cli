@@ -43,7 +43,7 @@ class ClientShould(UnitTestBaseClass):
             main(argv=["image-go-nord-client", "--version"])
             self.assertEqual(0, cm.exception.code)
 
-        self.assertEqual("0.1.0", self.mocked_stdout.getvalue().strip())
+        self.assertEqual("0.2.0", self.mocked_stdout.getvalue().strip())
         self.mock_gn_instance.open_image.assert_not_called()
         self.mock_gn_instance.convert_image.assert_not_called()
 
@@ -51,7 +51,7 @@ class ClientShould(UnitTestBaseClass):
             main(argv=["image-go-nord-client", "-v"])
             self.assertEqual(0, cm.exception.code)
 
-        self.assertIn("0.1.0", self.mocked_stdout.getvalue().strip())
+        self.assertIn("0.2.0", self.mocked_stdout.getvalue().strip())
         self.mock_gn_instance.open_image.assert_not_called()
         self.mock_gn_instance.convert_image.assert_not_called()
 
