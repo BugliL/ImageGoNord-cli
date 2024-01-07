@@ -40,32 +40,6 @@ and/or open issues at https://github.com/Schrodinger-Hat/ImageGoNord/issues/new
 
 class confarg:
     logs = {
-        "img": [
-            "[INFO] Loading input image: {}",
-            "[ERROR] On '{}': you need to pass the image path!",
-            "\te.g. --img='Pictures/notNord.jpg'",
-        ],
-        "out": [
-            "[INFO] Set output image name: {}",
-            "[ERROR] On '{}': no output filename specify!",
-            "\te.g. --out='Pictures/nord.jpg'",
-        ],
-        "navg": [
-            "[INFO] No average pixels selected for algorithm optimization",
-            "[ERROR] On '{}': the average pixels do not take any values!",
-            "\te.g. --no-average",
-        ],
-        "pxls": [
-            "[INFO] Set up pixels width area: {}",
-            "[INFO] Set up pixels height area: {}",
-            "[ERROR] On '{}': no value specify within the area pixels!",
-            "\te.g. --pixels-area=2 or -pa=-4,-3",
-        ],
-        "blur": [
-            "[INFO] Blur enabled",
-            "[ERROR] On '{}': the blur argument do not take any values!",
-            "\te.g. --blur",
-        ],
         "pals": [
             "[INFO] Use all color set: {}",
             "[INFO] Use palette set: {}",
@@ -191,7 +165,7 @@ def main(argv: Union[list[str], None] = None):
     if argv is None:
         argv = sys.argv.copy()
 
-    arguments, _ = parser.parse_known_args(argv.copy())
+    arguments, uknown_args = parser.parse_known_args(argv.copy())
     args = argv[1:]
     if not argv:
         parser.print_help()
@@ -205,12 +179,6 @@ def main(argv: Union[list[str], None] = None):
         logging.basicConfig(level=logging.CRITICAL)
 
     go_nord = GoNord()
-
-    # Get absolute path of source project
-    src_path = Path(__file__).parent
-
-    # Get all palettes created
-    palettes = [folder.name.lower() for folder in (src_path / "palettes").iterdir()]
 
     image = go_nord.open_image(arguments.input_path)
     logging.info("Loading input image: %s", arguments.input_path)
@@ -233,7 +201,13 @@ def main(argv: Union[list[str], None] = None):
         logging.info("Set up pixels width area: %s", w)
         logging.info("Set up pixels height area: %s", h)
 
-    for arg in args:
+    # Get absolute path of source project
+    src_path = Path(__file__).parent
+
+    # Get all palettes created
+    palettes = [folder.name.lower() for folder in (src_path / "palettes").iterdir()]
+
+    for arg in uknown_args:
         key_value = [kv for kv in arg.split("=", 1) if kv != ""]
         key = key_value[0].lower()
 
