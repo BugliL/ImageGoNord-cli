@@ -196,10 +196,10 @@ def get_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-c",
         "--colors",
-        type=lambda value: set(value.split(",")),
+        type=lambda value: list(value.split(",")),
         dest="colors",
         metavar="COLORS",
-        default=set(),
+        default=[],
         help="specify the colors to use",
     )
 

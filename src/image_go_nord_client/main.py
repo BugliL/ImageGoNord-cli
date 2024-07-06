@@ -58,8 +58,8 @@ def main(argv: Union[list[str], None] = None):
     go_nord.reset_palette()
     go_nord.set_palette_lookup_path(str(selected_palette.path) + "/")
 
-    all_colors_names = {color.name for color in selected_palette.colors}
-    if len(arguments.colors) and not arguments.colors.issubset(all_colors_names):
+    all_colors_names = sorted([color.name for color in selected_palette.colors])
+    if not set(arguments.colors).issubset(set(all_colors_names)):
         logging.warning(
             "Color %s not found, possible colors are %s",
             arguments.colors,
@@ -67,7 +67,7 @@ def main(argv: Union[list[str], None] = None):
         )
         return 1
 
-    selected_colors = all_colors_names if not arguments.colors else arguments.colors
+    selected_colors = arguments.colors if arguments.colors else all_colors_names
     for color in selected_colors:
         go_nord.add_file_to_palette(str(color) + ".txt")
 
